@@ -1,4 +1,4 @@
-seekur_ground_station
+Seekur Jr. Ground Station
 =====================
 
 GUI responsible for controlling the Seekur Jr robot
