@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/viki/visualization_tutorials/librviz_tutorial/build/devel/setup.sh

@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: librviz_tutorial
+Description: Description of librviz_tutorial
+Version: 0.9.0
+Cflags: 
+Libs: -L/usr/local/lib 
+Requires: 

@@ -1,0 +1,8 @@
+prefix=/home/viki/visualization_tutorials/librviz_tutorial/build/devel
+
+Name: librviz_tutorial
+Description: Description of librviz_tutorial
+Version: 0.9.0
+Cflags: 
+Libs: -L/home/viki/visualization_tutorials/librviz_tutorial/build/devel/lib 
+Requires: 
