@@ -210,34 +210,6 @@ void MyViz::onClickNavGoal()
     //manager_->
   if( grid_ != NULL )
   {
-//      rviz::ToolManager* tools;
-//      tools->initialize();
-
-    //trial 2  manager_->getToolManager()->initialize();
-
-      //failed rviz::SelectionTool* tool = new rviz::SelectionTool();
-      //failed manager_->
-      //failed tool->onInitialize();
-     // failed tool->getCursor();
-
-//     failed  QWidget* mywid = new QWidget(this);
-//     failed  rviz::VisualizationFrame* myFrame = new rviz::VisualizationFrame(mywid);
-//     failed  myFrame->addToolBar("hello tool bar");
-//      failed myFrame->show();
-
-
-      //failed tool->activate();
-      //failed tool->initialize();
-
-        //DisplayContext
-
-
-        //grid_->subProp( "Color" )->setValue( Qt::blue );
-
-
-
-      //grid_ = manager_->createDisplay( "rviz/Grid", "grid", true );//self.grid_display = self.frame.getManager().createDisplay( "rviz/Grid", "Awesome grid", True )
-
        navGoal_ = manager_->getToolManager();//      tool_man = self.frame.getManager().getToolManager()
 
       for(int i=0; i<navGoal_->numTools(); i++)  //    for i in range( tool_man.numTools() ):
