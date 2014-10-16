@@ -37,11 +37,6 @@
 #include "rviz/visualization_manager.h"
 #include "rviz/render_panel.h"
 #include "rviz/display.h"
-#include "rviz/config.h"
-#include "rviz/selection/selection_handler.h"
-#include "rviz/selection/selection_manager.h"
-#include "rviz/default_plugin/tools/selection_tool.h"
-#include "rviz/visualization_frame.h"
 #include "rviz/tool_manager.h"
 #include "myviz.h"
 
@@ -103,26 +98,22 @@ MyViz::MyViz( QWidget* parent )
   manager_->initialize();
   manager_->startUpdate();
   // Create a Grid display.
-//  rviz::SelectionHandler
-
-//rviz::Config* h = new rviz::Config("~/.rviz/default.rviz");
-//manager_->load(*h); //( "rviz/Grid", "adjustable grid", true );
 
 manager_->setFixedFrame("map");
 
-grid_ = manager_->createDisplay( "rviz/RobotModel", "robot model", true );
-grid_ = manager_->createDisplay( "rviz/Grid", "grid", true );
-grid2_ = manager_->createDisplay( "rviz/PoseArray", "pose array", true );
-grid3_ = manager_->createDisplay( "rviz/TF","TF", true );
-grid4_ = manager_->createDisplay( "rviz/LaserScan","Laser", true );
-grid5_ = manager_->createDisplay( "rviz/Map","Map1", true );
-grid6_ = manager_->createDisplay( "rviz/Polygon","Polygon", true );
-grid7_ = manager_->createDisplay( "rviz/Path","Path1", true );
-grid8_ = manager_->createDisplay( "rviz/Path","Path2", true );
-grid9_ = manager_->createDisplay( "rviz/Marker","Marker", true );
-grid10_ = manager_->createDisplay( "rviz/Map","Map2", true );
-//grid11_ = manager_->createDisplay( "rviz/Map","Map23", true );
-grid12_ = manager_->createDisplay( "rviz/PointCloud2","PointCloud", true );
+robotModel_ = manager_->createDisplay( "rviz/RobotModel", "robot model", true );
+grid_       = manager_->createDisplay( "rviz/Grid", "grid", true );
+poseAraay_  = manager_->createDisplay( "rviz/PoseArray", "pose array", true );
+tF_         = manager_->createDisplay( "rviz/TF","TF", true );
+laserScan_  = manager_->createDisplay( "rviz/LaserScan","Laser", true );
+map1_       = manager_->createDisplay( "rviz/Map","Map1", true );
+polygon_    = manager_->createDisplay( "rviz/Polygon","Polygon", true );
+path1_      = manager_->createDisplay( "rviz/Path","Path1", true );
+path2_      = manager_->createDisplay( "rviz/Path","Path2", true );
+marker_     = manager_->createDisplay( "rviz/Marker","Marker", true );
+map2_       = manager_->createDisplay( "rviz/Map","Map2", true );
+//map3_     = manager_->createDisplay( "rviz/Map","Map3", true );
+pointCloud_ = manager_->createDisplay( "rviz/PointCloud2","PointCloud", true );
 
 ROS_ASSERT( grid_ != NULL );
 
@@ -131,37 +122,37 @@ ROS_ASSERT( grid_ != NULL );
   grid_->subProp( "Line Style" )->setValue( "Billboards" );
   grid_->subProp( "Color" )->setValue( Qt::gray );
 
-  grid2_->subProp( "Topic" )->setValue("/particlecloud");
-  grid2_->subProp( "Color" )->setValue(Qt::red);
-  grid2_->subProp( "Arrow Length" )->setValue(0.3);
+  poseAraay_->subProp( "Topic" )->setValue("/particlecloud");
+  poseAraay_->subProp( "Color" )->setValue(Qt::red);
+  poseAraay_->subProp( "Arrow Length" )->setValue(0.3);
 
-  grid3_->subProp( "Show Names" )->setValue(true);
-  grid3_->subProp( "Show Axes" )->setValue(true);
-  grid3_->subProp( "Show Arrows" )->setValue(true);
-  grid3_->subProp( "Marker Scale" )->setValue(1);
-  grid3_->subProp( "Frame Timeout" )->setValue(15);
+  tF_->subProp( "Show Names" )->setValue(true);
+  tF_->subProp( "Show Axes" )->setValue(true);
+  tF_->subProp( "Show Arrows" )->setValue(true);
+  tF_->subProp( "Marker Scale" )->setValue(1);
+  tF_->subProp( "Frame Timeout" )->setValue(15);
 
-  grid4_->subProp( "Topic" )->setValue("/scan");
+  laserScan_->subProp( "Topic" )->setValue("/scan");
 
-  grid5_->subProp( "Topic" )->setValue("/map");
+  map1_->subProp( "Topic" )->setValue("/map");
 
-  grid6_->subProp( "Topic" )->setValue("/move_base/local_costmap/obstacle_layer_footprint/footprint_stamped");
-  grid6_->subProp("Color")->setValue(Qt::green);
+  polygon_->subProp( "Topic" )->setValue("/move_base/local_costmap/obstacle_layer_footprint/footprint_stamped");
+  polygon_->subProp("Color")->setValue(Qt::green);
 
-  grid7_->subProp( "Topic" )->setValue("/move_base/TrajectoryPlannerROS/global_plan");
-  grid7_->subProp("Color")->setValue(Qt::green);
+  path1_->subProp( "Topic" )->setValue("/move_base/TrajectoryPlannerROS/global_plan");
+  path1_->subProp("Color")->setValue(Qt::green);
 
-  grid8_->subProp( "Topic" )->setValue("/move_base/NavfnROS/plan");
-  grid8_->subProp("Color")->setValue(Qt::yellow);
+  path2_->subProp( "Topic" )->setValue("/move_base/NavfnROS/plan");
+  path2_->subProp("Color")->setValue(Qt::yellow);
 
 
-  grid9_->subProp( "Topic" )->setValue("/exploration_polygon_marker");
+  marker_->subProp( "Topic" )->setValue("/exploration_polygon_marker");
 
-  grid10_->subProp( "Topic" )->setValue("/explore_server/explore_costmap/costmap");
+  map2_->subProp( "Topic" )->setValue("/explore_server/explore_costmap/costmap");
 
-  //grid11_->subProp( "Topic" )->setValue("/explore_server/explore_costmap/costmap");//costmap for navigation stack
+  //map3_->subProp( "Topic" )->setValue("/explore_server/explore_costmap/costmap");//costmap for navigation stack
 
-  grid12_->subProp( "Topic" )->setValue("/camera/depth_registered/points");
+  pointCloud_->subProp( "Topic" )->setValue("/camera/depth_registered/points");
 
   //camera
  // grid2_->subProp( "Image Topic" )->setValue("/camera/rgb/image_raw");
@@ -185,11 +176,6 @@ void MyViz::setThickness( int thickness_percent )
   if( grid_ != NULL )
   {
     grid_->subProp( "Line Style" )->subProp( "Line Width" )->setValue( thickness_percent / 100.0f );
-  /*  if self.grid_display != None:
-   self.grid_display.subProp( "Line Style" ).subProp( "Line Width" ).setValue( new_value / 1000.0 )
-   prop = rviz.Property( "Prop " + str(new_value), new_value / 1000.0, "Bad idea property generation" )
-   self.grid_display.addChild( prop )
-   self.props.append( prop )*/
   }
 }
 
@@ -207,20 +193,17 @@ void MyViz::setCellSize( int cell_size_percent )
 
 void MyViz::onClickNavGoal()
 {
-    //manager_->
   if( grid_ != NULL )
   {
-       navGoal_ = manager_->getToolManager();//      tool_man = self.frame.getManager().getToolManager()
+       navGoal_ = manager_->getToolManager();
 
-      for(int i=0; i<navGoal_->numTools(); i++)  //    for i in range( tool_man.numTools() ):
+      for(int i=0; i<navGoal_->numTools(); i++)
       {
-          if(navGoal_->getTool(i)->getName() == "2D Nav Goal")  //      if tool_man.getTool( i ).getName() == "Select":
+          if(navGoal_->getTool(i)->getName() == "2D Nav Goal")
           {
-              navGoal_->setCurrentTool(navGoal_->getTool(i)); //      tool_man.setCurrentTool( tool_man.getTool( i ))
-
+              navGoal_->setCurrentTool(navGoal_->getTool(i));
           }
       }
-
 }
 
 }
@@ -228,28 +211,26 @@ void MyViz::onClickNavGoal()
   {
       if( grid_ != NULL )
       {
-         poseEstimate_ = manager_->getToolManager();//      tool_man = self.frame.getManager().getToolManager()
+         poseEstimate_ = manager_->getToolManager();
 
-        for(int i=0; i<poseEstimate_->numTools(); i++)  //    for i in range( tool_man.numTools() ):
+        for(int i=0; i<poseEstimate_->numTools(); i++)
         {
-            if(poseEstimate_->getTool(i)->getName() == "2D Pose Estimate")  //      if tool_man.getTool( i ).getName() == "Select":
+            if(poseEstimate_->getTool(i)->getName() == "2D Pose Estimate")
             {
-                poseEstimate_->setCurrentTool(poseEstimate_->getTool(i)); //      tool_man.setCurrentTool( tool_man.getTool( i ))
-
+                poseEstimate_->setCurrentTool(poseEstimate_->getTool(i));
             }
         }
       }
   }
     void MyViz::onClickSelect()
     {
-           select_ = manager_->getToolManager();//      tool_man = self.frame.getManager().getToolManager()
+           select_ = manager_->getToolManager();
 
-          for(int i=0; i<select_->numTools(); i++)  //    for i in range( tool_man.numTools() ):
+          for(int i=0; i<select_->numTools(); i++)
           {
-              if(select_->getTool(i)->getName() == "Select")  //      if tool_man.getTool( i ).getName() == "Select":
+              if(select_->getTool(i)->getName() == "Select")
               {
-                  select_->setCurrentTool(select_->getTool(i)); //      tool_man.setCurrentTool( tool_man.getTool( i ))
-
+                  select_->setCurrentTool(select_->getTool(i));
               }
           }
 

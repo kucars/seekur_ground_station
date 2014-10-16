@@ -30,7 +30,6 @@
 #define MYVIZ_H
 
 #include <QWidget>
-#include "rviz/config.h"
 
 namespace rviz
 {
@@ -49,8 +48,6 @@ Q_OBJECT
 public:
   MyViz( QWidget* parent = 0 );
   virtual ~MyViz();
-  //Config rr("");
-rviz::Config* r;
 
 private Q_SLOTS:
   void setThickness( int thickness_percent );
@@ -64,20 +61,23 @@ private:
   rviz::VisualizationManager* manager_;
   rviz::RenderPanel* render_panel_;
   rviz::Display* grid_;
-  rviz::Display* grid2_;
-  rviz::Display* grid3_;
-  rviz::Display* grid4_;
-  rviz::Display* grid5_;
-  rviz::Display* grid6_;
-  rviz::Display* grid7_;
-  rviz::Display* grid8_;
-  rviz::Display* grid9_;
-  rviz::Display* grid10_;
-  rviz::Display* grid11_;
-  rviz::Display* grid12_;
+  rviz::Display* robotModel_;
+  rviz::Display* poseAraay_;
+  rviz::Display* tF_;
+  rviz::Display* laserScan_;
+  rviz::Display* map1_;
+  rviz::Display* polygon_;
+  rviz::Display* path1_;
+  rviz::Display* path2_;
+  rviz::Display* marker_;
+  rviz::Display* map2_;
+  rviz::Display* map3_;
+  rviz::Display* pointCloud_;
+
   rviz::ToolManager* select_;
   rviz::ToolManager* navGoal_;
   rviz::ToolManager* poseEstimate_;
+
 
 };
 // END_TUTORIAL
