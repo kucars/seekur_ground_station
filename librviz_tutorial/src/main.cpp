@@ -50,13 +50,7 @@ int main(int argc, char **argv)
   MyViz* myviz = new MyViz();
   myviz->show();
 
-    // QDeclarativeView *view = new QDeclarativeView();
-     //view->setSource(QUrl("/home/seekursdp/catkin_ws/src/librviz_tutorial/mainn/mainn.qml"));
- //    view->
-     //view->show();
-
      app.exec();
 
-//delete view;
   delete myviz;
 }

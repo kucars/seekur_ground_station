@@ -40,6 +40,20 @@
 #include "rviz/tool_manager.h"
 #include "myviz.h"
 
+#include <ros/ros.h>
+#include <sensor_msgs/Joy.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <tf/transform_listener.h>
+#include <ros/network.h>
+#include <string>
+#include <std_msgs/String.h>
+#include <sstream>
+#include <sensor_msgs/Joy.h>
+#include <string.h>
+#include "rviz/display_context.h"
+#include "rviz/properties/string_property.h"
+#include "rviz/properties/property.h"
+#include "rviz/default_plugin/tools/goal_tool.h"
 
 // BEGIN_TUTORIAL
 // Constructor for MyViz.  This does most of the work of the class.
@@ -111,8 +125,8 @@ polygon_    = manager_->createDisplay( "rviz/Polygon","Polygon", true );
 path1_      = manager_->createDisplay( "rviz/Path","Path1", true );
 path2_      = manager_->createDisplay( "rviz/Path","Path2", true );
 marker_     = manager_->createDisplay( "rviz/Marker","Marker", true );
-map2_       = manager_->createDisplay( "rviz/Map","Map2", true );
-//map3_     = manager_->createDisplay( "rviz/Map","Map3", true );
+//map2_       = manager_->createDisplay( "rviz/Map","Map2", true );
+//map3_       = manager_->createDisplay( "rviz/Map","Map3", true );
 pointCloud_ = manager_->createDisplay( "rviz/PointCloud2","PointCloud", true );
 
 ROS_ASSERT( grid_ != NULL );
@@ -128,27 +142,38 @@ ROS_ASSERT( grid_ != NULL );
 
   tF_->subProp( "Show Names" )->setValue(true);
   tF_->subProp( "Show Axes" )->setValue(true);
-  tF_->subProp( "Show Arrows" )->setValue(true);
+  tF_->subProp( "Show Arrows" )->setValue(true);manager_->setFixedFrame("map");
+
   tF_->subProp( "Marker Scale" )->setValue(1);
   tF_->subProp( "Frame Timeout" )->setValue(15);
 
   laserScan_->subProp( "Topic" )->setValue("/scan");
 
   map1_->subProp( "Topic" )->setValue("/map");
+  map1_->subProp( "Alpha" )->setValue(0.7);
+  map1_->subProp( "Color Scheme" )->setValue("map");
+  map1_->subProp( "Position" )->setValue("0; 0; 0");
+  map1_->subProp( "Orientation" )->setValue("0; 0; 0; 1");
+
 
   polygon_->subProp( "Topic" )->setValue("/move_base/local_costmap/obstacle_layer_footprint/footprint_stamped");
   polygon_->subProp("Color")->setValue(Qt::green);
+  polygon_->subProp("Alpha")->setValue(1);
 
   path1_->subProp( "Topic" )->setValue("/move_base/TrajectoryPlannerROS/global_plan");
-  path1_->subProp("Color")->setValue(Qt::green);
+  path1_->subProp("Color")->setValue(Qt::black);
+  path1_->subProp("Alpha")->setValue(1);
+  path1_->subProp("Buffer Length")->setValue(1);
 
   path2_->subProp( "Topic" )->setValue("/move_base/NavfnROS/plan");
   path2_->subProp("Color")->setValue(Qt::yellow);
+  path2_->subProp("Alpha")->setValue(1);
+  path2_->subProp("Buffer Length")->setValue(1);
 
 
   marker_->subProp( "Topic" )->setValue("/exploration_polygon_marker");
 
-  map2_->subProp( "Topic" )->setValue("/explore_server/explore_costmap/costmap");
+  //map2_->subProp( "Topic" )->setValue("/explore_server/explore_costmap/costmap");
 
   //map3_->subProp( "Topic" )->setValue("/explore_server/explore_costmap/costmap");//costmap for navigation stack
 
@@ -195,15 +220,18 @@ void MyViz::onClickNavGoal()
 {
   if( grid_ != NULL )
   {
-       navGoal_ = manager_->getToolManager();
+
+      navGoal_ = manager_->getToolManager();
 
       for(int i=0; i<navGoal_->numTools(); i++)
       {
           if(navGoal_->getTool(i)->getName() == "2D Nav Goal")
           {
+              navGoal_->getTool(i)->getPropertyContainer()->subProp("Topic")->setValue("/move_base_simple/goal");
               navGoal_->setCurrentTool(navGoal_->getTool(i));
           }
       }
+
 }
 
 }

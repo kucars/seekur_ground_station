@@ -38,6 +38,7 @@ class RenderPanel;
 class VisualizationManager;
 class VisualizationPanel;
 class ToolManager;
+class Tool;
 }
 
 // BEGIN_TUTORIAL
@@ -73,10 +74,12 @@ private:
   rviz::Display* map2_;
   rviz::Display* map3_;
   rviz::Display* pointCloud_;
+  rviz::Display* setGoal_;
 
   rviz::ToolManager* select_;
   rviz::ToolManager* navGoal_;
   rviz::ToolManager* poseEstimate_;
+
 
 
 };
