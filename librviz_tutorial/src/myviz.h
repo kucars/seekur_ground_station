@@ -30,6 +30,7 @@
 #define MYVIZ_H
 
 #include <QWidget>
+#include <QPushButton>
 
 namespace rviz
 {
@@ -50,12 +51,24 @@ public:
   MyViz( QWidget* parent = 0 );
   virtual ~MyViz();
 
+
+  QPushButton* select ;
+  QPushButton* navGoal ;
+  QPushButton* poseEstimate ;
+  //QPushButton* moveCamera ;
+  QPushButton* interact ;
+  QPushButton* publishPoint ;
+
+
 private Q_SLOTS:
   void setThickness( int thickness_percent );
   void setCellSize( int cell_size_percent );
   void onClickNavGoal();
   void onClickSelect();
   void onClickPoseEstimate();
+  //void onClickMoveCamera();
+  void onClickInteract();
+  void onClickPublishPoint();
 
 
 private:
@@ -74,11 +87,13 @@ private:
   rviz::Display* map2_;
   rviz::Display* map3_;
   rviz::Display* pointCloud_;
-  rviz::Display* setGoal_;
 
-  rviz::ToolManager* select_;
-  rviz::ToolManager* navGoal_;
-  rviz::ToolManager* poseEstimate_;
+  rviz::ToolManager* allTools_;
+//  rviz::ToolManager* navGoal_;
+//  rviz::ToolManager* poseEstimate_;
+//  rviz::ToolManager* moveCamera_;
+//  rviz::ToolManager* interact_;
+
 
 
 

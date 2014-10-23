@@ -60,6 +60,7 @@
 MyViz::MyViz( QWidget* parent )
   : QWidget( parent )
 {
+
   // Construct and lay out labels and slider controls.
   QLabel* thickness_label = new QLabel( "Line Thickness" );
   QSlider* thickness_slider = new QSlider( Qt::Horizontal );
@@ -75,20 +76,25 @@ MyViz::MyViz( QWidget* parent )
   controls_layout->addWidget( cell_size_label, 1, 0 );
   controls_layout->addWidget( cell_size_slider, 1, 1 );
 
-  QPushButton* select = new QPushButton( "Select" );
-  QPushButton* navGoal = new QPushButton( "2D Nav Goal" );
-  QPushButton* poseEstimate = new QPushButton( "2D Pose Estimate" );
 
-  //QAction action;
-  //button->addAction();
+
+  select = new QPushButton( "Select" );
+  navGoal = new QPushButton( "2D Nav Goal" );
+  poseEstimate = new QPushButton( "2D Pose Estimate" );
+  //moveCamera = new QPushButton( "Move Camera" );
+  interact = new QPushButton( "Interact" );
+  publishPoint = new QPushButton("Publish Point" );
 
   // Construct and lay out render panel.
   render_panel_ = new rviz::RenderPanel();
   QVBoxLayout* main_layout = new QVBoxLayout;
   main_layout->addLayout( controls_layout );
+ // main_layout->addWidget(moveCamera);
+  main_layout->addWidget(interact);
   main_layout->addWidget(select);
   main_layout->addWidget(navGoal);
   main_layout->addWidget(poseEstimate);
+  main_layout->addWidget(publishPoint);
   main_layout->addWidget( render_panel_ );
 
   // Set the top-level layout for this MyViz widget.
@@ -100,6 +106,9 @@ MyViz::MyViz( QWidget* parent )
   connect( select, SIGNAL(clicked()), this, SLOT( onClickSelect()));
   connect( navGoal, SIGNAL(clicked()), this, SLOT( onClickNavGoal()));
   connect( poseEstimate, SIGNAL(clicked()), this, SLOT( onClickPoseEstimate()));
+  //connect( moveCamera, SIGNAL(clicked()), this, SLOT( onClickMoveCamera()));
+  connect( interact, SIGNAL(clicked()), this, SLOT( onClickInteract()));
+  connect( publishPoint, SIGNAL(clicked()), this, SLOT( onClickPublishPoint()));
 
   // Next we initialize the main RViz classes.
   //
@@ -125,8 +134,8 @@ polygon_    = manager_->createDisplay( "rviz/Polygon","Polygon", true );
 path1_      = manager_->createDisplay( "rviz/Path","Path1", true );
 path2_      = manager_->createDisplay( "rviz/Path","Path2", true );
 marker_     = manager_->createDisplay( "rviz/Marker","Marker", true );
-//map2_       = manager_->createDisplay( "rviz/Map","Map2", true );
-//map3_       = manager_->createDisplay( "rviz/Map","Map3", true );
+map2_       = manager_->createDisplay( "rviz/Map","Map2", true );
+map3_       = manager_->createDisplay( "rviz/Map","Map3", true );
 pointCloud_ = manager_->createDisplay( "rviz/PointCloud2","PointCloud", true );
 
 ROS_ASSERT( grid_ != NULL );
@@ -173,9 +182,9 @@ ROS_ASSERT( grid_ != NULL );
 
   marker_->subProp( "Topic" )->setValue("/exploration_polygon_marker");
 
-  //map2_->subProp( "Topic" )->setValue("/explore_server/explore_costmap/costmap");
+  map2_->subProp( "Topic" )->setValue("/explore_server/explore_costmap/costmap");
 
-  //map3_->subProp( "Topic" )->setValue("/explore_server/explore_costmap/costmap");//costmap for navigation stack
+  map3_->subProp( "Topic" )->setValue("/explore_server/explore_costmap/costmap");//costmap for navigation stack
 
   pointCloud_->subProp( "Topic" )->setValue("/camera/depth_registered/points");
 
@@ -216,19 +225,26 @@ void MyViz::setCellSize( int cell_size_percent )
 }
 
 
+//void MyViz::setIcons()
+//{
+//    allTools_ = manager_->getToolManager();
+//    navGoal->setIcon(allTools_->getTool(3)->getIcon());
+
+//}
+
 void MyViz::onClickNavGoal()
 {
   if( grid_ != NULL )
   {
+      allTools_ = manager_->getToolManager();
 
-      navGoal_ = manager_->getToolManager();
-
-      for(int i=0; i<navGoal_->numTools(); i++)
+      for(int i=0; i<allTools_->numTools(); i++)
       {
-          if(navGoal_->getTool(i)->getName() == "2D Nav Goal")
+          if(allTools_->getTool(i)->getName() == "2D Nav Goal")
           {
-              navGoal_->getTool(i)->getPropertyContainer()->subProp("Topic")->setValue("/move_base_simple/goal");
-              navGoal_->setCurrentTool(navGoal_->getTool(i));
+              allTools_->getTool(i)->getPropertyContainer()->subProp("Topic")->setValue("/move_base_simple/goal");
+              allTools_->setCurrentTool(allTools_->getTool(i));
+              navGoal->setIcon(allTools_->getTool(i)->getIcon());
           }
       }
 
@@ -239,26 +255,75 @@ void MyViz::onClickNavGoal()
   {
       if( grid_ != NULL )
       {
-         poseEstimate_ = manager_->getToolManager();
+          allTools_ = manager_->getToolManager();
 
-        for(int i=0; i<poseEstimate_->numTools(); i++)
+
+        for(int i=0; i<allTools_->numTools(); i++)
         {
-            if(poseEstimate_->getTool(i)->getName() == "2D Pose Estimate")
+            if(allTools_->getTool(i)->getName() == "2D Pose Estimate")
             {
-                poseEstimate_->setCurrentTool(poseEstimate_->getTool(i));
+                allTools_->setCurrentTool(allTools_->getTool(i));
+                poseEstimate->setIcon(allTools_->getTool(i)->getIcon());
             }
         }
       }
   }
     void MyViz::onClickSelect()
     {
-           select_ = manager_->getToolManager();
+        allTools_ = manager_->getToolManager();
 
-          for(int i=0; i<select_->numTools(); i++)
+          for(int i=0; i<allTools_->numTools(); i++)
           {
-              if(select_->getTool(i)->getName() == "Select")
+              if(allTools_->getTool(i)->getName() == "Select")
               {
-                  select_->setCurrentTool(select_->getTool(i));
+                  allTools_->setCurrentTool(allTools_->getTool(i));
+                  select->setIcon(allTools_->getTool(i)->getIcon());
+
+              }
+          }
+
+    }
+
+//    void MyViz::onClickMoveCamera()
+//    {
+//          for(int i=0; i<allTools_->numTools(); i++)
+//          {
+//              if(allTools_->getTool(i)->getName() == "Move Camera")
+//              {
+//                  allTools_->setCurrentTool(allTools_->getTool(i));
+
+//              }
+//          }
+
+//    }
+
+    void MyViz::onClickInteract()
+    {
+        allTools_ = manager_->getToolManager();
+
+          for(int i=0; i<allTools_->numTools(); i++)
+          {
+              if(allTools_->getTool(i)->getName() == "Interact")
+              {
+                  allTools_->setCurrentTool(allTools_->getTool(i));
+                  interact->setIcon(allTools_->getTool(i)->getIcon());
+
+              }
+          }
+
+    }
+    void MyViz::onClickPublishPoint()
+    {
+        allTools_ = manager_->getToolManager();
+
+          for(int i=0; i<allTools_->numTools(); i++)
+          {
+              if(allTools_->getTool(i)->getName() == "Publish Point")
+              {
+                  qDebug()<<"true";
+                  allTools_->setCurrentTool(allTools_->getTool(i));
+                  publishPoint->setIcon(allTools_->getTool(i)->getIcon());
+
               }
           }
 
