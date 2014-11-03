@@ -1,0 +1,304 @@
+/**
+ * @file /src/qnode.cpp
+ *
+ * @brief Ros communication central!
+ *
+ * @date February 2011
+ **/
+
+
+/*****************************************************************************
+** Includes
+*****************************************************************************/
+
+#include <ros/ros.h>
+#include <ros/network.h>
+#include <string>
+#include <std_msgs/String.h>
+#include <sstream>
+#include "../include/learninggui/qnode.hpp"
+#include <sensor_msgs/Joy.h>
+#include<string.h>
+
+/*****************************************************************************
+** Namespaces
+********************
+*********************************************************/
+
+// at full joystick depression you'll go this fast
+double max_speed = 0.100; // m/second
+double max_turn = 60.0*M_PI/180.0; // rad/second
+// should we continuously send commands?
+bool always_command = false;
+
+//QNode* tbk;
+int kfd = 0;
+struct termios cooked, raw;
+bool done;
+
+namespace learninggui {
+using namespace std;
+/*****************************************************************************
+** Implementation
+*****************************************************************************/
+QNode::QNode(){
+     qDebug()<<"am in qnode constructor1"<<endl;
+
+      max_tv_ = max_speed;
+      max_rv_ = max_turn;
+     // init();
+}
+
+QNode::QNode(int argc, char** argv ) :
+    init_argc(argc),
+    init_argv(argv)
+
+    {
+
+   // init();
+    }
+
+QNode::~QNode() {
+    if(ros::isStarted()) {
+      ros::shutdown(); // explicitly needed since we use ros::start();
+      ros::waitForShutdown();
+    }
+    wait();
+}
+bool QNode::init() {
+  ros::init(init_argc,init_argv,"learninggui");
+   qDebug()<<"am in init"<<endl;
+ if ( ! ros::master::check() ) {
+      return false;
+  }
+  ros::start(); // explicitly needed since our nodehandle is going out of scope.
+
+  ros::NodeHandle n_;
+   pub_ = n_.advertise<geometry_msgs::Twist>("/RosAria/cmd_vel",1); //TBK_Node publishes RosAria/cmd_vel topic and RosAria node subscribes to it
+  // joy_sub_ = n_.subscribe<joy::Joy>("/joy", 10, &QNode::joyCallback, this);
+
+   qDebug()<<"am done with pub snd add"<<endl;
+
+  chatter_publisher = n_.advertise<std_msgs::String>("chatter", 1000);
+//    pub_ = n_.advertise<geometry_msgs::Twist>("/cmd_vel",1); //TBK_Node publishes RosAria/cmd_vel topic and RosAria node subscribes to it
+  // joy_sub_ = n_.subscribe<sensor_msgs::Joy>("joy", 10, &QNode::joyCallback, this);
+//ros::spin();
+   start();
+    return true;
+}
+
+/*bool QNode::init(const std::string &master_url, const std::string &host_url) {
+    std::map<std::string,std::string> remappings;
+    remappings["__master"] = master_url;
+    remappings["__hostname"] = host_url;
+//  ros::init(remappings,"learninggui");
+//  if ( ! ros::master::check() ) {
+//      return false;
+//  }
+
+    //chatter_publisher = n.advertise<std_msgs::String>("chatter", 1000);
+   // pub_ = n_.advertise<geometry_msgs::Twist>("/cmd_vel",1); //TBK_Node publishes RosAria/cmd_vel topic and RosAria node subscribes to it
+   // joy_sub_ = n_.subscribe<sensor_msgs::Joy>("joy", 10, &QNode::joyCallback, this);
+
+//  ros::start(); // explicitly needed since our nodehandle is going out of scope.
+//    ros::NodeHandle n;
+//    // Add your ros communications here.
+//    chatter_publisher = n.advertise<std_msgs::String>("chatter", 1000);
+//  start();
+    return true;
+}*/
+
+void QNode::keyPressed(int keyId)
+{
+
+    QMutexLocker lock(&mutex);
+    isKeyPressed = true;
+    this->keyId = keyId;
+     qDebug()<<"here in keypressed key id is "<<keyId;
+}
+
+
+void QNode::run()
+{
+    ros::Rate loop_rate(1);
+    //int count = 0;
+    //ros::spin();
+    ros::spinOnce();
+    int scalingfactor = 1;
+    double x = 0.1;
+    while(ros::ok() /*&& pub_*/)
+    {
+       if(isKeyPressed)
+        {
+            // do something
+            mutex.lock();
+            isKeyPressed = false;
+            mutex.unlock();
+            switch(keyId)
+            {
+            case SPACEB:
+               cmdvel.linear.x=0.0;
+               cmdvel.angular.z=0.0;
+                break;
+            case DOWN:
+                cmdvel.linear.x = -x;
+                cmdvel.angular.z = 0.0;
+                break;
+            case UP:
+                cmdvel.linear.x = x;
+                cmdvel.angular.z = 0.0;
+                break;
+            case RIGHTB:
+                cmdvel.linear.x = 0.0;//0.2
+                cmdvel.angular.z = -0.3;//doesn't always work
+                break;
+            case LEFTB:
+                cmdvel.linear.x = 0.0;//0.1
+                cmdvel.angular.z = 0.3;
+                break;
+            case SHIFTB:
+                scalingfactor++;
+                if(scalingfactor == 6)
+                {
+                    scalingfactor =  5;
+                }
+                else if(scalingfactor <= 0)
+                {
+                    scalingfactor = 1;
+                }
+                x = 0.1 * scalingfactor;
+                if(cmdvel.linear.x<0)
+                {
+                    cmdvel.linear.x = -x;
+                    cmdvel.angular.z = 0.0;
+                }
+                else if(cmdvel.linear.x>0)
+                {
+                    cmdvel.linear.x = x;
+                    cmdvel.angular.z = 0.0;
+                }
+                break;
+            case CTRLB:
+                scalingfactor--;
+                if(scalingfactor == 6)
+                {
+                    scalingfactor =  5;
+                }
+                else if(scalingfactor <= 0)
+                {
+                    scalingfactor = 1;
+                }
+                x = 0.1 * scalingfactor;
+                if(cmdvel.linear.x<0)
+                {
+                    cmdvel.linear.x = -x;
+                    cmdvel.angular.z = 0.0;
+                }
+                else if(cmdvel.linear.x>0)
+                {
+                    cmdvel.linear.x = x;
+                    cmdvel.angular.z = 0.0;
+                }
+                break;
+            default:
+                qDebug()<<"unknown key";
+            }
+            pub_.publish(cmdvel);
+
+        std_msgs::String msg;
+         chatter_publisher.publish(msg);
+            loop_rate.sleep();
+        }
+    }
+}
+
+double QNode::speed(){
+    double kk=cmdvel.linear.x;
+    return kk;
+   //string m = "Hello";
+    //retrun m
+}
+
+double QNode::speed2(){
+    double kk=cmdvel.linear.z;
+    return kk;
+   //string m = "Hello";
+    //retrun m
+}
+
+void QNode::log( const LogLevel &level, const std::string &msg) {
+    logging_model.insertRows(logging_model.rowCount(),1);
+    std::stringstream logging_model_msg;
+    switch ( level ) {
+        case(Debug) : {
+                ROS_DEBUG_STREAM(msg);
+                logging_model_msg << "[DEBUG] [" << ros::Time::now() << "]: " << msg;
+                break;
+        }
+        case(Info) : {
+                ROS_INFO_STREAM(msg);
+                logging_model_msg << "[INFO] [" << ros::Time::now() << "]: " << msg;
+                break;
+        }
+        case(Warn) : {
+                ROS_WARN_STREAM(msg);
+                logging_model_msg << "[INFO] [" << ros::Time::now() << "]: " << msg;
+                break;
+        }
+        case(Error) : {
+                ROS_ERROR_STREAM(msg);
+                logging_model_msg << "[ERROR] [" << ros::Time::now() << "]: " << msg;
+                break;
+        }
+        case(Fatal) : {
+                ROS_FATAL_STREAM(msg);
+                logging_model_msg << "[FATAL] [" << ros::Time::now() << "]: " << msg;
+                break;
+        }
+    }
+    QVariant new_row(QString(logging_model_msg.str().c_str()));
+    logging_model.setData(logging_model.index(logging_model.rowCount()-1),new_row);
+    Q_EMIT loggingUpdated(); // used to readjust the scrollbar
+}
+
+/*void QNode::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
+{
+   //ros::Publisher chatter_publisher.publish(joy_msg);
+ qDebug()<<"am in joy callback "<<joy;
+
+ // cmdvel.linear.x = max_tv_ * joy->axes[1];
+  //qDebug(cmdvel.linear.x + "   ");
+//  cmdvel.angular.z = max_rv_ * joy->axes[0];
+
+  //qDebug(joy->buttons[4] + "   ");
+
+//  if (joy->buttons[4] == 1)
+//  {
+//    max_tv_ += max_speed/10;
+//  }
+//  if (joy->buttons[5] == 1)
+//  {
+//    max_tv_ -= max_speed/10;
+//  }
+//  if (joy->buttons[6] == 1)
+//  {
+//    max_rv_ += max_turn/10;
+//  }
+//  if (joy->buttons[7] == 1)
+//  {
+//    max_rv_ -= max_turn/10;
+//  }
+
+cmdvel.linear.x = 0.1;
+cmdvel.angular.z = 0.0;
+  printf("sending...[%f, %f]\n", cmdvel.linear.x, cmdvel.angular.z);
+  pub_.publish(cmdvel);
+
+}*/
+
+void QNode::stopRobot()
+{
+  cmdvel.linear.x = cmdvel.angular.z = 0.0;
+  pub_.publish(cmdvel);
+}
+}  // namespace learninggui

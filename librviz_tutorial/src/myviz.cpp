@@ -54,6 +54,7 @@
 #include "rviz/properties/string_property.h"
 #include "rviz/properties/property.h"
 #include "rviz/default_plugin/tools/goal_tool.h"
+#include "rviz/default_plugin/tools/point_tool.h"
 
 // BEGIN_TUTORIAL
 // Constructor for MyViz.  This does most of the work of the class.
@@ -135,7 +136,7 @@ path1_      = manager_->createDisplay( "rviz/Path","Path1", true );
 path2_      = manager_->createDisplay( "rviz/Path","Path2", true );
 marker_     = manager_->createDisplay( "rviz/Marker","Marker", true );
 map2_       = manager_->createDisplay( "rviz/Map","Map2", true );
-map3_       = manager_->createDisplay( "rviz/Map","Map3", true );
+//map3_       = manager_->createDisplay( "rviz/Map","Map3", true );
 pointCloud_ = manager_->createDisplay( "rviz/PointCloud2","PointCloud", true );
 
 ROS_ASSERT( grid_ != NULL );
@@ -179,12 +180,13 @@ ROS_ASSERT( grid_ != NULL );
   path2_->subProp("Alpha")->setValue(1);
   path2_->subProp("Buffer Length")->setValue(1);
 
-
-  marker_->subProp( "Topic" )->setValue("/exploration_polygon_marker");
+  marker_->subProp( "Marker Topic" )->setValue("/exploration_polygon_marker");
+  //marker_->subProp("Topic")->subProp("Color")->setValue(Qt::blue);
+  //marker_->subProp( "Color" )->setValue(Qt::green);
 
   map2_->subProp( "Topic" )->setValue("/explore_server/explore_costmap/costmap");
 
-  map3_->subProp( "Topic" )->setValue("/explore_server/explore_costmap/costmap");//costmap for navigation stack
+  //map3_->subProp( "Topic" )->setValue("/explore_server/explore_costmap/costmap");//costmap for navigation stack
 
   pointCloud_->subProp( "Topic" )->setValue("/camera/depth_registered/points");
 
@@ -315,16 +317,21 @@ void MyViz::onClickNavGoal()
     void MyViz::onClickPublishPoint()
     {
         allTools_ = manager_->getToolManager();
+        allTools_->addTool("rviz/PublishPoint");
 
           for(int i=0; i<allTools_->numTools(); i++)
           {
               if(allTools_->getTool(i)->getName() == "Publish Point")
               {
-                  qDebug()<<"true";
                   allTools_->setCurrentTool(allTools_->getTool(i));
                   publishPoint->setIcon(allTools_->getTool(i)->getIcon());
+                  //qDebug()<<allTools_->getTool(i)->getDescription();
+                  //qDebug()<<allTools_->getTool(i)->getPropertyContainer();
+                  qDebug()<<allTools_->getTool(i)->getPropertyContainer()->subProp("Topic")->getValue();
+                  qDebug()<<allTools_->getTool(i)->getPropertyContainer()->subProp("Color")->getValue();
 
               }
+
           }
 
     }
