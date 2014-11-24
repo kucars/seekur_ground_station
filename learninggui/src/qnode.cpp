@@ -29,12 +29,12 @@
 double max_speed = 0.100; // m/second
 double max_turn = 60.0*M_PI/180.0; // rad/second
 // should we continuously send commands?
-bool always_command = false;
+//bool always_command = false;
 
 //QNode* tbk;
-int kfd = 0;
-struct termios cooked, raw;
-bool done;
+//int kfd = 0;
+//struct termios cooked, raw;
+//bool done;
 
 namespace learninggui {
 using namespace std;
@@ -52,11 +52,10 @@ QNode::QNode(){
 QNode::QNode(int argc, char** argv ) :
     init_argc(argc),
     init_argv(argv)
-
     {
 
-   // init();
-    }
+
+}
 
 QNode::~QNode() {
     if(ros::isStarted()) {
@@ -75,38 +74,11 @@ bool QNode::init() {
 
   ros::NodeHandle n_;
    pub_ = n_.advertise<geometry_msgs::Twist>("/RosAria/cmd_vel",1); //TBK_Node publishes RosAria/cmd_vel topic and RosAria node subscribes to it
-  // joy_sub_ = n_.subscribe<joy::Joy>("/joy", 10, &QNode::joyCallback, this);
 
-   qDebug()<<"am done with pub snd add"<<endl;
-
-  chatter_publisher = n_.advertise<std_msgs::String>("chatter", 1000);
-//    pub_ = n_.advertise<geometry_msgs::Twist>("/cmd_vel",1); //TBK_Node publishes RosAria/cmd_vel topic and RosAria node subscribes to it
-  // joy_sub_ = n_.subscribe<sensor_msgs::Joy>("joy", 10, &QNode::joyCallback, this);
 //ros::spin();
    start();
     return true;
 }
-
-/*bool QNode::init(const std::string &master_url, const std::string &host_url) {
-    std::map<std::string,std::string> remappings;
-    remappings["__master"] = master_url;
-    remappings["__hostname"] = host_url;
-//  ros::init(remappings,"learninggui");
-//  if ( ! ros::master::check() ) {
-//      return false;
-//  }
-
-    //chatter_publisher = n.advertise<std_msgs::String>("chatter", 1000);
-   // pub_ = n_.advertise<geometry_msgs::Twist>("/cmd_vel",1); //TBK_Node publishes RosAria/cmd_vel topic and RosAria node subscribes to it
-   // joy_sub_ = n_.subscribe<sensor_msgs::Joy>("joy", 10, &QNode::joyCallback, this);
-
-//  ros::start(); // explicitly needed since our nodehandle is going out of scope.
-//    ros::NodeHandle n;
-//    // Add your ros communications here.
-//    chatter_publisher = n.advertise<std_msgs::String>("chatter", 1000);
-//  start();
-    return true;
-}*/
 
 void QNode::keyPressed(int keyId)
 {
@@ -158,9 +130,9 @@ void QNode::run()
                 break;
             case SHIFTB:
                 scalingfactor++;
-                if(scalingfactor == 6)
+                if(scalingfactor == 7)
                 {
-                    scalingfactor =  5;
+                    scalingfactor =  6;
                 }
                 else if(scalingfactor <= 0)
                 {
@@ -180,9 +152,9 @@ void QNode::run()
                 break;
             case CTRLB:
                 scalingfactor--;
-                if(scalingfactor == 6)
+                if(scalingfactor == 7)
                 {
-                    scalingfactor =  5;
+                    scalingfactor =  6;
                 }
                 else if(scalingfactor <= 0)
                 {
@@ -203,10 +175,16 @@ void QNode::run()
             default:
                 qDebug()<<"unknown key";
             }
+           QString m= QString::number(cmdvel.linear.x);
+           QString z= QString::number(cmdvel.angular.z);
+
+           log(Info,std::string("Linear velocity:  "+m.toStdString()+"\nAngular velocity:  "
+                                +z.toStdString()));
+
+           // speed
             pub_.publish(cmdvel);
 
-        std_msgs::String msg;
-         chatter_publisher.publish(msg);
+
             loop_rate.sleep();
         }
     }
@@ -215,15 +193,11 @@ void QNode::run()
 double QNode::speed(){
     double kk=cmdvel.linear.x;
     return kk;
-   //string m = "Hello";
-    //retrun m
 }
 
 double QNode::speed2(){
     double kk=cmdvel.linear.z;
     return kk;
-   //string m = "Hello";
-    //retrun m
 }
 
 void QNode::log( const LogLevel &level, const std::string &msg) {
@@ -236,8 +210,9 @@ void QNode::log( const LogLevel &level, const std::string &msg) {
                 break;
         }
         case(Info) : {
+                logging_model.removeRows(1,1);
                 ROS_INFO_STREAM(msg);
-                logging_model_msg << "[INFO] [" << ros::Time::now() << "]: " << msg;
+                logging_model_msg << /*"[INFO] [" << ros::Time::now() << "]: " <<*/ msg;
                 break;
         }
         case(Warn) : {
@@ -261,40 +236,6 @@ void QNode::log( const LogLevel &level, const std::string &msg) {
     Q_EMIT loggingUpdated(); // used to readjust the scrollbar
 }
 
-/*void QNode::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
-{
-   //ros::Publisher chatter_publisher.publish(joy_msg);
- qDebug()<<"am in joy callback "<<joy;
-
- // cmdvel.linear.x = max_tv_ * joy->axes[1];
-  //qDebug(cmdvel.linear.x + "   ");
-//  cmdvel.angular.z = max_rv_ * joy->axes[0];
-
-  //qDebug(joy->buttons[4] + "   ");
-
-//  if (joy->buttons[4] == 1)
-//  {
-//    max_tv_ += max_speed/10;
-//  }
-//  if (joy->buttons[5] == 1)
-//  {
-//    max_tv_ -= max_speed/10;
-//  }
-//  if (joy->buttons[6] == 1)
-//  {
-//    max_rv_ += max_turn/10;
-//  }
-//  if (joy->buttons[7] == 1)
-//  {
-//    max_rv_ -= max_turn/10;
-//  }
-
-cmdvel.linear.x = 0.1;
-cmdvel.angular.z = 0.0;
-  printf("sending...[%f, %f]\n", cmdvel.linear.x, cmdvel.angular.z);
-  pub_.publish(cmdvel);
-
-}*/
 
 void QNode::stopRobot()
 {

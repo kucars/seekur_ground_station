@@ -70,24 +70,24 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
         qnode.keyPressed(SHIFTB);
         qDebug()<<"keyPressed "<<e->key();
     }
-//    else if (e->key() == Qt::Key_Control)
-//    {
-//       // qDebug("am in CTRL");
-//        qnode.keyPressed(CTRLB);
-//        qDebug()<<"keyPressed "<<e->key();
-//    }
-    else if (e->modifiers().testFlag(Qt::ControlModifier))
+    else if (e->key() == Qt::Key_Control)
     {
-             if(e->key() == Qt::Key_Down)
-    {
-        qDebug("am in CTRL+UP");
+       // qDebug("am in CTRL");
         qnode.keyPressed(CTRLB);
-        //qDebug()<<"keyPressed 1"<<e->key();
-        //qDebug()<<"keyPressed 2"<<e->modifiers();
+        qDebug()<<"keyPressed "<<e->key();
+//    }
+//    else if (e->modifiers().testFlag(Qt::ControlModifier))
+//    {
+//             if(e->key() == Qt::Key_Down)
+//    {
+//        qDebug("am in CTRL+UP");
+//        qnode.keyPressed(CTRLB);
+//        //qDebug()<<"keyPressed 1"<<e->key();
+//        //qDebug()<<"keyPressed 2"<<e->modifiers();
 
-    }
+//    }
 }
-
+//to print the speed
     double num = qnode.speed();
      QString m= QString::number(num);
      QString n="The linear velocity is: ";
@@ -95,7 +95,7 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
      QString p = "The anguler velocity is: ";
      double num2 = qnode.speed2();
      QString f= QString::number(num2);
-     ui.label_5->setText(n+m+o+p+f);
+    // ui.label_5->setText(n+m+o+p+f);
     //speed();
 
 
@@ -124,9 +124,9 @@ this->setFocusPolicy(Qt::StrongFocus);
     /*********************
     ** Logging
     **********************/
-    //ui.view_logging->setModel(qnode.loggingModel());
-    //QObject::connect(&qnode, SIGNAL(loggingUpdated()), this, SLOT(updateLoggingView()));
-
+    ui.view_logging->setModel(qnode.loggingModel());
+    QObject::connect(&qnode, SIGNAL(loggingUpdated()), this, SLOT(updateLoggingView()));
+    //ui.label_5
     /*********************
     ** Auto Start
     **********************/
@@ -184,9 +184,9 @@ void MainWindow::on_checkbox_use_environment_stateChanged(int state) {
  * this will drop the cursor down to the last line in the QListview to ensure
  * the user can always see the latest log message.
  */
-/*void MainWindow::updateLoggingView() {
+void MainWindow::updateLoggingView() {
         ui.view_logging->scrollToBottom();
-}*/
+}
 
 /*****************************************************************************
 ** Implementation [Menu]
