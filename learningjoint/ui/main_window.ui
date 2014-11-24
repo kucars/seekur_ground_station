@@ -53,9 +53,6 @@
            <string>Logging</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_3">
-           <item row="9" column="0">
-            <widget class="QTextEdit" name="postion_view"/>
-           </item>
            <item row="3" column="0">
             <widget class="QRadioButton" name="radiojoint_3">
              <property name="text">
@@ -84,7 +81,7 @@
              </property>
             </widget>
            </item>
-           <item row="10" column="0">
+           <item row="9" column="0">
             <widget class="QListView" name="view_logging"/>
            </item>
            <item row="7" column="0">

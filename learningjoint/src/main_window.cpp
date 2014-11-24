@@ -67,7 +67,7 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
 
    string1=string1+"closed";
 
-    ui.postion_view->setText(string2 + string1);
+    //ui.postion_view->setText(string2 + string1);
 
 //    double num = qnode.speed();
 //
@@ -116,8 +116,8 @@ this->setFocusPolicy(Qt::StrongFocus);
     /*********************
     ** Logging
     **********************/
-    //ui.view_logging->setModel(qnode.loggingModel());
-    //QObject::connect(&qnode, SIGNAL(loggingUpdated()), this, SLOT(updateLoggingView()));
+    ui.view_logging->setModel(qnode.loggingModel());
+    QObject::connect(&qnode, SIGNAL(loggingUpdated()), this, SLOT(updateLoggingView()));
 
     /*********************
     ** Auto Start

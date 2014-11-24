@@ -110,6 +110,7 @@ void QNode::run()
     i[3]=-40;
     i[4]= 0;
     double k = 0;
+    QString grip_status;
 
     while(ros::ok() /*&& pub_*/)
     {
@@ -178,6 +179,7 @@ void QNode::run()
             case UP:
                 if(name == QString("g"))
                 {
+                    grip_status = "open";
                     j.name.push_back(name.toStdString());
                     j.position.push_back(0);
                     pub_.publish(j);
@@ -194,6 +196,7 @@ void QNode::run()
             case DOWN:
                 if(name == QString("g"))
                 {
+                    grip_status = "closed";
                     j.name.push_back(name.toStdString());
                     j.position.push_back(1);
                     pub_.publish(j);
@@ -215,10 +218,24 @@ void QNode::run()
                 break;
 
             }
+
+            QString stringjoint = "joint 1 \t joint 2 \t joint 3 \t joint 4 \t joint 5 \t Gripper\n";
+            QString string1 = "";
+
+            for (int k=0;k<5;k++)
+             {
+                 string1 = string1+QString::number(i[k])+"\t";//qt visualizers seen view //radio checks//regidtry q settings
+             }
+
+           // log(Info,std::string("Linear velocity:  "+j1.toStdString()));
+            string1 = string1 + grip_status;
+            log(Info,std::string(stringjoint.toStdString()+string1.toStdString()));
+
             qDebug()<<"Size of j:"<<j.name.size();
         }
         std_msgs::String msg;
         chatter_publisher.publish(msg);
+
         j.name.clear();
         j.position.clear();
         ros::spinOnce();
@@ -250,8 +267,9 @@ void QNode::log( const LogLevel &level, const std::string &msg) {
                 break;
         }
         case(Info) : {
+                logging_model.removeRows(1,1);
                 ROS_INFO_STREAM(msg);
-                logging_model_msg << "[INFO] [" << ros::Time::now() << "]: " << msg;
+                logging_model_msg <</* "[INFO] [" << ros::Time::now() << "]: " <<*/msg;
                 break;
         }
         case(Warn) : {
